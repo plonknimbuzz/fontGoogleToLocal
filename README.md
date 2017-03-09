@@ -1,4 +1,4 @@
-# fontGoogleToLocal
+# README
 fontGoogleToLocal is a PHP library to save fonts and css from given google fonts link. This is usefull for develper that need save google font locally for offline purpose. This library is simple and easy to use.
 
 ### History
