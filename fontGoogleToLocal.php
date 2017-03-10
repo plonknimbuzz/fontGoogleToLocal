@@ -22,17 +22,38 @@ class fontGoogleToLocal
 		if(!is_dir($this->folderRoot."/".$this->folderFont)) mkdir($this->folderRoot."/".$this->folderFont);
 	}
 	
+	private function fetchLink()
+	{
+		if(preg_match("/^http?s:\/\/fonts.googleapis.com\/css\?family=(.*)/",$this->link, $match))
+		{
+			$exp = explode('|', $match[1]);
+			$result = array("cssName"=>array(), "link"=>array());
+			foreach($exp as $font)
+			{
+				$result['link'][] = "http://fonts.googleapis.com/css?family=".$font;
+				$result['cssName'][] = str_replace(array("+",",",":"),array("-","_","_"),$font);
+			}
+			return $result;
+		}
+		else
+			die("you must supply valid google fonts link");
+	}
+	
 	public function getCss()
 	{
-		$originCss = $this->download($this->link);
-		$data = $this->fetchCss($originCss);
-		for($i=0; $i<count($data['url']);$i++)
-		{
-			$filename = $this->setFileName($data['fontFamily'][$i], $data['fontStyle'][$i], $data['fontWeight'][$i], $data['charType'][$i], $data['url'][$i]);
-			$this->saveFont($filename, $this->download($data['url'][$i]));
-			$originCss = str_replace($data['url'][$i], "../".$this->folderFont."/".$filename, $originCss);
-		}		
-		$this->saveCss($data['fontFamily'][0].".css", $originCss);
+		$listLink = $this->fetchLink();
+		for($e=0; $e < count($listLink['link']);$e++)
+		{			
+			$originCss = $this->download($listLink['link'][$e]);
+			$data = $this->fetchCss($originCss);
+			for($i=0; $i<count($data['url']);$i++)
+			{
+				$filename = $this->setFileName($data['fontFamily'][$i], $data['fontStyle'][$i], $data['fontWeight'][$i], $data['charType'][$i], $data['url'][$i]);
+				$this->saveFont($filename, $this->download($data['url'][$i]));
+				$originCss = str_replace($data['url'][$i], "../".$this->folderFont."/".$filename, $originCss);
+			}		
+			$this->saveCss($listLink['cssName'][$e].".css", $originCss);
+		}
 	}
 	
 	private function setFileName($fontFamily, $fontStyle, $fontWeight, $charType, $url)
@@ -41,7 +62,7 @@ class fontGoogleToLocal
 			fontFamily_fontStyle_fontWeight_charType.Extension
 		*/
 		$ext = explode('.', $url);
-		return $fontFamily."_".$fontStyle."_".$fontWeight."_".$charType.".".end($ext);
+		return str_replace(" ", "-", $fontFamily)."_".$fontStyle."_".$fontWeight."_".$charType.".".end($ext);
 	}
 	
 	private function saveFont($filename, $content)
@@ -50,7 +71,7 @@ class fontGoogleToLocal
 		if(!is_file($this->folderFont."/".$filename) || $this->forceReplace)
 			file_put_contents($this->folderRoot."/".$this->folderFont."/".$filename, $content);
 		else
-			die("error: file exists. Use setForceReplace to force replace existing file.");
+			echo "skipped existing file: $fiename<br>";
 	}
 
 	private function saveCss($filename, $content)
@@ -59,7 +80,7 @@ class fontGoogleToLocal
 		if(!is_file($this->folderCss."/".$filename) || $this->forceReplace)
 			file_put_contents($this->folderRoot."/".$this->folderCss."/".$filename, $content);
 		else
-			die("error: file exists. Use setForceReplace to force replace existing file.");
+			echo "skipped existing file: $fiename<br>";
 	}
 	
 	
