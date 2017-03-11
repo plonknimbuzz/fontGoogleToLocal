@@ -34,8 +34,12 @@ See **Example** for demo
 | setFolderFont($str) | string | Set folder for save font file. Default: "font" |
 | setForceReplace($boolean) | boolean | if set true, will force replace if file existing. Default: false |
 | setUserAgent($userAgent) | string | set user agent. Default: "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36" |
+| getListFile() | none | get list all file (css and fonts) |
 
 ### Changelog
+
+**2017-03-11 : v1.3**
+- add function to return list file css and font. example: for delete all file, or for zip creation
 
 **2017-03-10 : v1.2**
 - support multiple fonts, ex: "https://fonts.googleapis.com/css?family=Roboto:400,700|Oswald|Lato:700"
