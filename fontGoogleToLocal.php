@@ -14,7 +14,9 @@ class fontGoogleToLocal
 	private $folderFont="font";
 	private $forceReplace=false;
 	private $userAgent="Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-		
+	private $listFileCss = array();
+	private $listFileFont = array();
+	
 	private function createFolder()
 	{
 		if(!is_dir($this->folderRoot)) mkdir($this->folderRoot);
@@ -48,12 +50,20 @@ class fontGoogleToLocal
 			$data = $this->fetchCss($originCss);
 			for($i=0; $i<count($data['url']);$i++)
 			{
-				$filename = $this->setFileName($data['fontFamily'][$i], $data['fontStyle'][$i], $data['fontWeight'][$i], $data['charType'][$i], $data['url'][$i]);
-				$this->saveFont($filename, $this->download($data['url'][$i]));
-				$originCss = str_replace($data['url'][$i], "../".$this->folderFont."/".$filename, $originCss);
-			}		
-			$this->saveCss($listLink['cssName'][$e].".css", $originCss);
+				$fontName = $this->setFileName($data['fontFamily'][$i], $data['fontStyle'][$i], $data['fontWeight'][$i], $data['charType'][$i], $data['url'][$i]);
+				$this->saveFont($fontName, $this->download($data['url'][$i]));
+				$this->listFileFont[] = $this->folderRoot."/".$this->folderFont."/".$fontName;
+				$originCss = str_replace($data['url'][$i], "../".$this->folderFont."/".$fontName, $originCss);
+			}
+			$cssName = $listLink['cssName'][$e].".css";
+			$this->saveCss($cssName, $originCss);
+			$this->listFileCss[] = $this->folderRoot."/".$this->folderCss."/".$cssName;
 		}
+	}
+	
+	public function getListFile()
+	{
+		return array_merge($this->listFileCss,$this->listFileFont);
 	}
 	
 	private function setFileName($fontFamily, $fontStyle, $fontWeight, $charType, $url)
